@@ -1,0 +1,44 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+logs
+npm-debug.log*
+pnpm-debug.log*
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE settings
+.vscode/
+.idea/
+*.swp
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Coverage output
+coverage/
+
+# Test-related
+.jest/
+
+# Lockfiles (optional, if you don’t want to include them in version control)
+package-lock.json
+.tool-version
