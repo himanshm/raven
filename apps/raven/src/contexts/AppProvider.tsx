@@ -1,28 +1,13 @@
+// contexts/AppProvider.tsx
 import type { Theme } from "@/types";
-import {
-  createContext,
-  useEffect,
-  useState,
-  type ReactNode
-} from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { AppProviderContext } from "./AppContext";
 
 type AppProviderProps = {
   children: ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
 };
-
-type AppProviderState = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-};
-
-const initialState: AppProviderState = {
-  theme: "system",
-  setTheme: () => null
-};
-
-export const AppProviderContext = createContext<AppProviderState>(initialState);
 
 export function AppProvider({
   children,
@@ -60,4 +45,3 @@ export function AppProvider({
     </AppProviderContext.Provider>
   );
 }
-

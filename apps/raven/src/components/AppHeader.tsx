@@ -1,4 +1,4 @@
-import { Link } from "react-router"
+import { Link } from "react-router";
 
 const AppHeader = () => {
   return (
@@ -7,7 +7,7 @@ const AppHeader = () => {
         Finance Folio
       </Link>
     </header>
-  )
-}
+  );
+};
 
-export default AppHeader
+export default AppHeader;

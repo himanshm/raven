@@ -11,7 +11,7 @@ const DefaultLayout = () => {
         <Outlet />
       </main>
     </div>
-  )
-}
+  );
+};
 
 export default DefaultLayout;
