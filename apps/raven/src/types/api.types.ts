@@ -1,4 +1,4 @@
-export type Theme = "dark" | "light" | "system";
+// API types
 
 export type QueryValue =
   | string
@@ -10,23 +10,11 @@ export type QueryValue =
 
 export type QueryParams = Record<string, QueryValue>;
 
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  avatarUrl?: string;
-}
-
-export interface UserState {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-}
-
 export interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
   success: boolean;
+  status: "success" | "failed";
 }
 
 export interface ApiError {

@@ -1,6 +1,6 @@
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router";
-import { AppProvider } from "./contexts/AppContext";
+import { AppProvider } from "./contexts/AppProvider";
 import router from "./routes";
 import { store } from "./store";
 
