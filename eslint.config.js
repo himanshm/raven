@@ -31,7 +31,7 @@ export default defineConfig([
       }
     },
     rules: {
-      'no-unused-vars': off,
+      'no-unused-vars': 'off',
       "@typescript-eslint/no-unused-vars": [
                 "error",
                 {
@@ -49,7 +49,9 @@ export default defineConfig([
           arrowParens: 'avoid',
           printWidth: 80,
           semi: true,
-          trailingComma: 'none'
+          trailingComma: 'none',
+          useTabs: false,
+          tabWidth: 2
         }
       ]
     }

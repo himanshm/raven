@@ -1,11 +1,12 @@
 {
   "name": "finance-folio",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "pnpm --filter raven dev",
     "lint": "eslint --config eslint.config.js --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint --config eslint --ext .ts,.tsx,.js,.jsx --fix"
+    "lint:fix": "eslint --config eslint.config.js --ext .ts,.tsx,.js,.jsx --fix"
   },
   "packageManager": "pnpm@10.18.2",
   "devDependencies": {
