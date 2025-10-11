@@ -156,3 +156,15 @@ HTTP POST to backend
 // State updates:
 // { error: "Invalid credentials", loading: false }
 ```
+
+### `initialized` and `isAuthenticated` states in the auth store slice
+
+```
+initialized = "Have we TRIED to check auth?" (yes/no)
+isAuthenticated = "Did we FIND a valid session?" (yes/no)
+```
+
+Both need to be true for different reasons:
+`initialized: true, isAuthenticated: true` → Show app
+`initialized: true, isAuthenticated: false` → Show login
+`initialized: false` → Show loading (don't know yet)

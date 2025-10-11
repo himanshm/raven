@@ -6,6 +6,7 @@ import { createSlice } from "@reduxjs/toolkit";
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  initialized?: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -13,6 +14,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
+  initialized: false,
   loading: false,
   error: null
 };
@@ -134,17 +136,19 @@ const authSlice = createSlice({
     builder
       .addCase(getCurrentUser.pending, state => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.isAuthenticated = true;
         state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload;
+        state.initialized = true;
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = false;
         state.user = null;
         state.error = action.payload?.message || "Get Current User failed";
-        state.isAuthenticated = false;
+        state.initialized = true;
       });
   }
 });
