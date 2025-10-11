@@ -1,7 +1,7 @@
 import type { ApiError, ApiResponse } from "@/types";
 import type { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import { AUTH_ENDPOINTS } from "./api.routes";
 import apiClient from "./client";
-import { AUTH_ENDPOINTS } from "./endPoints";
 
 // ===== BASE API CONFIGURATION =====
 const getBaseUrl = (): string => {
