@@ -1,17 +1,32 @@
 import DefaultLayout from "@/layouts/DefaultLayout";
 import { createBrowserRouter } from "react-router";
-import Home from "./components/Home";
+import NotFound from "./components/NotFound";
+import RouteGuard from "./components/routes/RouteGuard";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const router = createBrowserRouter([
   {
     Component: DefaultLayout,
     children: [
       {
-        index: true,
-        Component: Home
+        element: <RouteGuard requiredAuth={true} redirectTo="/login" />,
+        children: [
+          { index: true, Component: Dashboard },
+          { path: "dashboard", Component: Dashboard }
+        ]
+      },
+      {
+        element: <RouteGuard requiredAuth={false} redirectTo="/" />,
+        children: [
+          { path: "login", Component: Login },
+          { path: "register", Component: Register }
+        ]
       }
     ]
-  }
+  },
+  { path: "*", Component: NotFound }
 ]);
 
 export default router;
