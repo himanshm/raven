@@ -1,0 +1,6 @@
+const EMAIL_VALIDATION_REGEX = import.meta.env.VITE_EMAIL_VALIDATION_REGEX;
+if (!EMAIL_VALIDATION_REGEX) {
+  throw new Error("EMAIL_VALIDATION_REGEX is not defined");
+}
+
+export { EMAIL_VALIDATION_REGEX };
