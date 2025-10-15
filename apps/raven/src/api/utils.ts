@@ -1,3 +1,4 @@
+import { APP_CONFIG } from "@/constants";
 import type { ApiError, ApiResponse, QueryParams } from "@/types";
 import type { AxiosError, AxiosInstance } from "axios";
 import packageJson from "../../package.json";
@@ -51,11 +52,9 @@ export const getOrSetSessionId = (): string => {
 };
 
 // ===== BASE API CONFIGURATION =====
+console.log("APP_CONFIG", APP_CONFIG);
 export const getBaseUrl = (): string => {
-  const baseUrl = import.meta.env.VITE_BASE_API_URL;
-  if (!baseUrl) {
-    throw new Error("BASE_API_URL is not defined");
-  }
+  const baseUrl = APP_CONFIG.API_BASE_URL;
   return baseUrl;
 };
 
