@@ -5,5 +5,7 @@
   "tabWidth": 2,
   "trailingComma": "none",
   "semi": true,
-  "jsxSingleQuote": false
+  "jsxSingleQuote": false,
+  "newLineAfterImports": true,
+  "endOfLine": "auto"
 }

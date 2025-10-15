@@ -168,3 +168,25 @@ Both need to be true for different reasons:
 `initialized: true, isAuthenticated: true` → Show app
 `initialized: true, isAuthenticated: false` → Show login
 `initialized: false` → Show loading (don't know yet)
+
+## Forgot Password Flow
+
+```
+Forgot Password Flow:
+┌─────────────────┐    ForgotPasswordDto    ┌──────────────────┐
+│ "Forgot Password"│ ──────────────────────► │ Send Reset Email │
+│ (enter email)   │                         │ (with token)     │
+└─────────────────┘                         └──────────────────┘
+                                                      │
+                                                      ▼
+┌─────────────────┐    ResetPasswordDto     ┌──────────────────┐
+│ "Reset Password"│ ◄────────────────────── │ Email Link Click │
+│ (enter new pwd) │                         │ (contains token) │
+└─────────────────┘                         └──────────────────┘
+
+Alternative - Change Password (logged in):
+┌─────────────────┐    ChangePasswordDto    ┌──────────────────┐
+│ "Change Password"│ ──────────────────────► │ Update Password  │
+│ (current + new) │                         │ (authenticated)  │
+└─────────────────┘                         └──────────────────┘
+```
