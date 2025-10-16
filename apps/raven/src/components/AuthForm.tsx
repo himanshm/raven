@@ -17,7 +17,7 @@ import { Spinner } from "./ui/spinner";
 
 interface AuthFormProps {
   mode: AuthFormMode;
-  onSubmit: (data: AuthFormData) => void;
+  onSubmit: (data: AuthFormData) => Promise<void> | void;
   loading?: boolean;
   error?: string | null;
   className?: string;
@@ -28,7 +28,6 @@ const AuthForm = ({
   mode,
   onSubmit,
   loading,
-  error,
   className,
   token
 }: AuthFormProps) => {
@@ -44,7 +43,7 @@ const AuthForm = ({
       (data as ResetPasswordDto).token = token;
     }
 
-    onSubmit(data);
+    await onSubmit(data);
   };
 
   const renderFormFields = () =>
@@ -52,6 +51,7 @@ const AuthForm = ({
       const fieldConfig = AUTH_FORM_FIELD_CONFIGS[field];
       return (
         <AuthFormField
+          mode={mode}
           key={field}
           name={field}
           config={fieldConfig}
@@ -106,12 +106,6 @@ const AuthForm = ({
         <CardContent>
           <form onSubmit={handleSubmit(handleOnSubmit)}>
             <div className="flex flex-col gap-6">{renderFormFields()}</div>
-            {/* TODO: add error message using toast */}
-            {error && (
-              <p className="text-destructive text-sm text-center my-1">
-                {error}
-              </p>
-            )}
             <CardFooter className="flex-col gap-3">
               {renderSubmitButton()}
               {renderFooterLink()}

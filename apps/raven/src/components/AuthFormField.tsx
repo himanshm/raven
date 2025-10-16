@@ -1,10 +1,11 @@
-import type { AuthFormData, AuthFormFieldConfig } from "@/types";
+import type { AuthFormData, AuthFormFieldConfig, AuthFormMode } from "@/types";
 import type { FieldError, FieldErrors, UseFormRegister } from "react-hook-form";
 import { Link } from "react-router";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
 interface AuthFormFieldProps {
+  mode: AuthFormMode;
   name: string;
   config: AuthFormFieldConfig;
   register: UseFormRegister<AuthFormData>;
@@ -12,14 +13,14 @@ interface AuthFormFieldProps {
 }
 
 const AuthFormField = ({
+  mode,
   name,
   config,
   register,
   errors
 }: AuthFormFieldProps) => {
   const renderFormLabel = () => {
-    // TODO: Likely to update in case of register mode
-    if (name === "password") {
+    if (name === "password" && mode === "login") {
       return (
         <div className="flex items-center">
           <Label htmlFor={name}>{config.label}</Label>

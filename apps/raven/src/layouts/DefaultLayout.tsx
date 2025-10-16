@@ -2,6 +2,7 @@ import AppHeader from "@/components/AppHeader";
 import ThemeToggle from "@/components/ThemeToggle";
 import UserAvatar from "@/components/UserAvatar";
 import { Separator } from "@/components/ui/separator";
+import { Toaster } from "@/components/ui/sonner";
 import { useResizeObserver } from "@/hooks/useResizeObserver";
 import { useAppSelector } from "@/store/hooks";
 import type { RefObject } from "react";
@@ -30,6 +31,7 @@ const DefaultLayout = () => {
       <main className="my-10">
         <Outlet />
       </main>
+      <Toaster position="top-right" richColors duration={4000} closeButton />
     </div>
   );
 };
