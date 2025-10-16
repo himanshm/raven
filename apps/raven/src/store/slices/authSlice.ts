@@ -22,13 +22,17 @@ const initialState: AuthState = {
 // ===== THUNKS =====
 
 export const signIn = createAppAsyncThunk<
-  User,
+  { user: User; message: string; success: boolean },
   LoginDto,
   { rejectValue: ApiError }
 >("auth/signIn", async (credentials: LoginDto, { rejectWithValue }) => {
   try {
-    const response = await authService.signIn(credentials);
-    return response.user;
+    const res = await authService.signIn(credentials);
+    return {
+      user: res.data.user,
+      message: res.message,
+      success: res.meta.success
+    };
   } catch (error) {
     return rejectWithValue(error as ApiError);
   }
@@ -47,26 +51,34 @@ export const signOut = createAppAsyncThunk<
 });
 
 export const register = createAppAsyncThunk<
-  User,
+  { user: User; message: string; success: boolean },
   RegisterDto,
   { rejectValue: ApiError }
 >("auth/register", async (data: RegisterDto, { rejectWithValue }) => {
   try {
-    const response = await authService.register(data);
-    return response.user;
+    const res = await authService.register(data);
+    return {
+      user: res.data.user,
+      message: res.message,
+      success: res.meta.success
+    };
   } catch (error) {
     return rejectWithValue(error as ApiError);
   }
 });
 
 export const getCurrentUser = createAppAsyncThunk<
-  User,
+  { user: User; message: string; success: boolean },
   void,
   { rejectValue: ApiError }
 >("auth/getCurrentUser", async (_, { rejectWithValue }) => {
   try {
-    const user = await authService.getCurrentUser();
-    return user;
+    const res = await authService.getCurrentUser();
+    return {
+      user: res.data.user,
+      message: res.message,
+      success: res.meta.success
+    };
   } catch (error) {
     return rejectWithValue(error as ApiError);
   }
@@ -78,13 +90,14 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    clearError: state => {
-      state.error = null;
+    clearAuth: state => {
+      state.initialized = false;
+      state.isAuthenticated = false;
+      state.user = null;
+      state.loading = false;
     },
 
-    logout: state => {
-      state.user = null;
-      state.isAuthenticated = false;
+    clearError: state => {
       state.error = null;
     }
   },
@@ -96,13 +109,15 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(signIn.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
+        state.initialized = true;
         state.loading = false;
       })
       .addCase(signIn.rejected, (state, action) => {
         state.error = action.payload?.message || "Sign In failed";
         state.loading = false;
+        state.initialized = true;
         state.isAuthenticated = false;
       });
     // Register
@@ -112,13 +127,15 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
+        state.initialized = true;
         state.loading = false;
       })
       .addCase(register.rejected, (state, action) => {
         state.error = action.payload?.message || "Register failed";
         state.isAuthenticated = false;
+        state.initialized = true;
         state.loading = false;
       });
     // Sign Out
@@ -131,6 +148,7 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.loading = false;
+        state.initialized = true;
       });
     // Get Current User
     builder
@@ -139,19 +157,22 @@ const authSlice = createSlice({
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload;
         state.initialized = true;
+        if (action.payload.success && action.payload.user) {
+          state.isAuthenticated = true;
+          state.user = action.payload.user;
+        } else {
+          state.isAuthenticated = false;
+          state.user = null;
+        }
       })
-      .addCase(getCurrentUser.rejected, (state, action) => {
+      .addCase(getCurrentUser.rejected, state => {
         state.loading = false;
-        state.isAuthenticated = false;
-        state.user = null;
-        state.error = action.payload?.message || "Get Current User failed";
         state.initialized = true;
+        state.isAuthenticated = false;
       });
   }
 });
 
-export const { clearError, logout } = authSlice.actions;
+export const { clearError, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

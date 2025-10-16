@@ -22,7 +22,6 @@ const RouteGuard = ({ requiredAuth, redirectTo }: RouteGuardProps) => {
     );
   }
 
-  //
   const shouldRedirect = requiredAuth ? !isAuthenticated : isAuthenticated;
 
   if (shouldRedirect) {

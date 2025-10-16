@@ -1,58 +1,43 @@
 import { AUTH_ENDPOINTS } from "@/api/api.routes";
-import {
-  apiGet,
-  apiPost,
-  clearUserIdentifier,
-  setUserIdentifier
-} from "@/api/base";
-import type { LoginDto, RegisterDto, User } from "@/types";
+import { apiGet, apiPost } from "@/api/base";
+import type {
+  AuthCurrentUserResponse,
+  AuthLoginResponse,
+  AuthRegisterResponse,
+  LoginDto,
+  RegisterDto
+} from "@/types";
 
 export const authService = {
   signIn: async (credentials: LoginDto) => {
-    // TODO: add return type
-    // TODO: check if 'x-auth-user' header is set in backend
-    const response = await apiPost<{ user: User; token: string }>(
+    const response = await apiPost<AuthLoginResponse>(
       AUTH_ENDPOINTS.LOGIN,
       credentials
     );
-
-    if (response.data.token) {
-      setUserIdentifier(response.data.token);
-    }
-
-    return response.data;
+    return response;
   },
 
   signOut: async () => {
     await apiPost(AUTH_ENDPOINTS.LOGOUT);
-    clearUserIdentifier();
   },
 
   register: async (credentials: RegisterDto) => {
-    const response = await apiPost<{ user: User; token: string }>(
+    const response = await apiPost<AuthRegisterResponse>(
       AUTH_ENDPOINTS.REGISTER,
       credentials
     );
-
-    if (response.data.token) {
-      setUserIdentifier(response.data.token);
-    }
-
-    return response.data;
+    return response;
   },
 
   getCurrentUser: async () => {
-    const response = await apiGet<User>(AUTH_ENDPOINTS.CURRENT_USER);
-    return response.data;
+    const response = await apiGet<AuthCurrentUserResponse>(
+      AUTH_ENDPOINTS.CURRENT_USER
+    );
+    return response;
   },
 
   refreshToken: async () => {
-    const response = await apiPost<{ token: string }>(AUTH_ENDPOINTS.REFRESH);
-
-    if (response.data.token) {
-      setUserIdentifier(response.data.token);
-    }
-
-    return response.data;
+    // Cookie-based refresh; no token is sent or consumed client-side
+    await apiPost(AUTH_ENDPOINTS.REFRESH);
   }
 };

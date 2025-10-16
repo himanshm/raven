@@ -1,5 +1,5 @@
 import { APP_CONFIG } from "@/constants";
-import type { ApiError, ApiResponse, QueryParams } from "@/types";
+import type { ApiError, QueryParams } from "@/types";
 import type { AxiosError, AxiosInstance } from "axios";
 import packageJson from "../../package.json";
 import { AUTH_ENDPOINTS } from "./api.routes";
@@ -52,33 +52,14 @@ export const getOrSetSessionId = (): string => {
 };
 
 // ===== BASE API CONFIGURATION =====
-console.log("APP_CONFIG", APP_CONFIG);
 export const getBaseUrl = (): string => {
   const baseUrl = APP_CONFIG.API_BASE_URL;
   return baseUrl;
 };
 
-// ===== AUTHENTICATION HELPERS =====
-const AUTH_USER_KEY = "currentUserIdentifier";
-
-export const getCurrentUserIdentifier = (): string | null => {
-  return sessionStorage.getItem(AUTH_USER_KEY);
-};
-
-export const setCurrentUserIdentifier = (identifier: string): void => {
-  sessionStorage.setItem(AUTH_USER_KEY, identifier);
-};
-
-export const removeCurrentUserIdentifier = (): void => {
-  sessionStorage.removeItem(AUTH_USER_KEY);
-};
-
 // ===== REDIRECT HELPER =====
 const redirectToLogin = (): void => {
-  if (typeof window !== "undefined") {
-    const currentPath = window.location.pathname + window.location.search;
-    window.location.href = `/login?refUrl=${encodeURIComponent(currentPath)}`;
-  }
+  window.dispatchEvent(new CustomEvent("auth:logout"));
 };
 
 // ===== AUTHENTICATION INTERCEPTOR =====
@@ -88,13 +69,7 @@ let isRefreshing = false;
 export const setupAuthInterceptor = (client: AxiosInstance): void => {
   // Request interceptor to add auth headers
   client.interceptors.request.use(
-    config => {
-      const userIdentifier = getCurrentUserIdentifier();
-      if (userIdentifier && config.headers) {
-        config.headers.set("x-auth-user", userIdentifier); // TODO: check in the backend and verify this
-      }
-      return config;
-    },
+    config => config,
     (error: AxiosError) => Promise.reject(error)
   );
 
@@ -102,80 +77,64 @@ export const setupAuthInterceptor = (client: AxiosInstance): void => {
   client.interceptors.response.use(
     response => response,
     async (error: AxiosError) => {
-      // Skip if no reponse
+      // Skip if no response
       if (!error.response) return Promise.reject(error);
 
       const originalRequest = error.config as typeof error.config & {
         _retry?: boolean;
       };
 
-      // Prevent infinite loop: don't retry if already retried
+      // Only handle 401 errors
+      if (error.response.status !== 401) {
+        return Promise.reject(error);
+      }
+
+      // Don't retry if already retried
       if (originalRequest?._retry) {
         return Promise.reject(error);
       }
 
-      // Prevent infinite loop: don't retry refresh endpoint
+      // Special handling for current-user endpoint (initial session check)
+      // Let it fail silently so the app can show login page without errors
+      if (
+        originalRequest?.url?.includes(AUTH_ENDPOINTS.CURRENT_USER) &&
+        !isRefreshing
+      ) {
+        return Promise.reject(error);
+      }
+
+      // Don't retry refresh endpoint itself
       if (originalRequest?.url?.includes(AUTH_ENDPOINTS.REFRESH)) {
-        removeCurrentUserIdentifier();
         redirectToLogin();
         return Promise.reject(error);
       }
 
-      // Handle 401 Unauthorized
-      if (error.response.status === 401 && originalRequest) {
-        // Don't redirect if it's the initial current-user check (auth initialization)
-        // This is expected to fail for unauthenticated users
-        if (originalRequest.url?.includes(AUTH_ENDPOINTS.CURRENT_USER)) {
-          return Promise.reject(error);
-        }
-
-        // Only try to refresh if we have a user identifier (meaning user was logged in)
-        const hasUserIdentifier = getCurrentUserIdentifier();
-
-        if (!hasUserIdentifier) {
-          // No token exists, don't try to refresh, just redirect
-          redirectToLogin();
-          return Promise.reject(error);
-        }
-
-        // Prevent multiple simultaneous refresh attempts
-        if (isRefreshing) {
-          return Promise.reject(error);
-        }
-
-        // Mark this request as retried
-        originalRequest._retry = true;
-        isRefreshing = true;
-
-        try {
-          // Attempt to refresh token
-          const refreshClient = apiClient(true);
-          refreshClient.defaults.baseURL = getBaseUrl();
-
-          const refreshResponse = await refreshClient.post<
-            ApiResponse<{ identifier: string }>
-          >(AUTH_ENDPOINTS.REFRESH);
-
-          const newIdentifier = refreshResponse.data?.data?.identifier;
-
-          if (newIdentifier) {
-            setCurrentUserIdentifier(newIdentifier);
-
-            // Retry original request with new identifier
-            originalRequest.headers.set("x-auth-user", newIdentifier);
-            return client.request(originalRequest);
-          }
-        } catch (refreshError) {
-          // Refresh failed, clear auth and redirect
-          removeCurrentUserIdentifier();
-          redirectToLogin();
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
-        }
+      // If already refreshing, do not queue or retry here
+      if (isRefreshing) {
+        return Promise.reject(error);
       }
 
-      return Promise.reject(error);
+      // Mark as retrying and start refresh process
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Create a fresh client for refresh request
+        const refreshClient = apiClient(true);
+        refreshClient.defaults.baseURL = getBaseUrl();
+
+        // Attempt to refresh token (cookies handle auth; response body not required)
+        await refreshClient.post(AUTH_ENDPOINTS.REFRESH);
+
+        // Retry original request as-is (no custom headers)
+        return client.request(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed - redirect to login
+        redirectToLogin();
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
   );
 };

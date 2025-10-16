@@ -1,14 +1,7 @@
 import type { ApiResponse } from "@/types";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import apiClient from "./client";
-import {
-  getBaseUrl,
-  getCurrentUserIdentifier,
-  handleApiError,
-  removeCurrentUserIdentifier,
-  setCurrentUserIdentifier,
-  setupAuthInterceptor
-} from "./utils";
+import { getBaseUrl, handleApiError, setupAuthInterceptor } from "./utils";
 
 // ===== API CLIENT FACTORY =====
 
@@ -115,20 +108,6 @@ export const apiDelete = async <T = unknown>(
   }
 };
 
-// ===== AUTHENTICATION HELPERS =====
-
-export const setUserIdentifier = (identifier: string): void => {
-  setCurrentUserIdentifier(identifier);
-};
-
-export const clearUserIdentifier = (): void => {
-  removeCurrentUserIdentifier();
-};
-
-export const getCurrentUser = (): string | null => {
-  return getCurrentUserIdentifier();
-};
-
 // ===== DEFAULT EXPORT =====
 
 export default {
@@ -138,8 +117,5 @@ export default {
   put: apiPut,
   patch: apiPatch,
   delete: apiDelete,
-  setUserIdentifier,
-  clearUserIdentifier,
-  getCurrentUser,
   resetApiClient
 };

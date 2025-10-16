@@ -1,3 +1,16 @@
+import type { User } from ".";
+
+export interface AuthLoginResponse {
+  user: User;
+}
+
+export interface AuthRegisterResponse {
+  user: User;
+}
+
+export interface AuthCurrentUserResponse {
+  user: User;
+}
 // DTOs (Data Transfer Objects) for API requests
 export interface LoginDto {
   email: string;

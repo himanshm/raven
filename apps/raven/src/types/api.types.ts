@@ -10,11 +10,14 @@ export type QueryValue =
 
 export type QueryParams = Record<string, QueryValue>;
 
+interface ApiMeta {
+  success: boolean;
+}
+
 export interface ApiResponse<T = unknown> {
   data: T;
-  message?: string;
-  success: boolean;
-  status: "success" | "failed";
+  message: string;
+  meta: ApiMeta;
 }
 
 export interface ApiError {
