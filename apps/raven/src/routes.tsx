@@ -3,8 +3,9 @@ import { createBrowserRouter } from "react-router";
 import NotFound from "./components/NotFound";
 import RouteGuard from "./components/routes/RouteGuard";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 import Profile from "./pages/settings/Profile";
 
 const router = createBrowserRouter([
@@ -23,7 +24,8 @@ const router = createBrowserRouter([
         element: <RouteGuard requiredAuth={false} redirectTo="/" />,
         children: [
           { path: "login", Component: Login },
-          { path: "register", Component: Register }
+          { path: "register", Component: Register },
+          { path: "forgot-password", Component: ForgotPassword }
         ]
       }
     ]
