@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import ResetPassword from "./pages/auth/ResetPassword";
+import UpdatePassword from "./pages/auth/UpdatePassword";
 import Profile from "./pages/settings/Profile";
 
 const router = createBrowserRouter([
@@ -17,7 +19,8 @@ const router = createBrowserRouter([
         children: [
           { index: true, Component: Dashboard },
           { path: "dashboard", Component: Dashboard },
-          { path: "settings/profile", Component: Profile }
+          { path: "profile", Component: Profile },
+          { path: "update-password", Component: UpdatePassword }
         ]
       },
       {
@@ -25,7 +28,8 @@ const router = createBrowserRouter([
         children: [
           { path: "login", Component: Login },
           { path: "register", Component: Register },
-          { path: "forgot-password", Component: ForgotPassword }
+          { path: "forgot-password", Component: ForgotPassword },
+          { path: "reset-password", Component: ResetPassword }
         ]
       }
     ]

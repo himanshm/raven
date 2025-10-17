@@ -96,6 +96,27 @@ export const useAuth = () => {
     return { success: false, error: "No active session" };
   }, [dispatch]);
 
+  const refreshAuth = useCallback(async () => {
+    const result = await dispatch(getCurrentUser());
+
+    if (getCurrentUser.fulfilled.match(result)) {
+      return {
+        success: result.payload.success,
+        data: result.payload,
+        user: result.payload.user
+      };
+    }
+
+    if (getCurrentUser.rejected.match(result)) {
+      return {
+        success: false,
+        error: result.payload?.message || "Failed to refresh authentication"
+      };
+    }
+
+    return { success: false, error: "Unknown error occurred" };
+  }, [dispatch]);
+
   const clearAuthError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
@@ -113,6 +134,7 @@ export const useAuth = () => {
     logout,
     signUp,
     checkSession,
+    refreshAuth,
     clearError: clearAuthError
   };
 };

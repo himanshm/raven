@@ -1,4 +1,8 @@
-# Architectural layers of the application
+# Finance Folio - Raven Application
+
+A modern financial portfolio management application built with React, TypeScript, and Redux Toolkit.
+
+## 🏗️ Architectural Layers
 
 ```
 ┌─────────────────────────────────────┐
@@ -31,10 +35,98 @@
 
 Each layer has a purpose:
 
-Components = UI + user interaction
-State Management = Cache + loading states
-Services = Business logic + API orchestration ← THIS IS KEY
-API Base = HTTP infrastructure
+- **Components** = UI + user interaction
+- **State Management** = Cache + loading states
+- **Services** = Business logic + API orchestration ← THIS IS KEY
+- **API Base** = HTTP infrastructure
+
+---
+
+## 🔐 Authentication System
+
+The Raven application implements a robust authentication system with cookie-based sessions, automatic token refresh, and optimized initialization flow.
+
+### Authentication Flow Overview
+
+```mermaid
+graph TD
+    A[App Starts] --> B[AuthProvider]
+    B --> C{initialized?}
+    C -->|No| D[initializeAuth]
+    C -->|Yes| E[Show App]
+    D --> F[getCurrentUser API]
+    F --> G{API Response}
+    G -->|Success| H[Set User Data]
+    G -->|401/Error| I[Set Unauthenticated]
+    H --> J[initialized: true]
+    I --> J
+    J --> K[RouteGuard Check]
+    K --> L{isAuthenticated?}
+    L -->|Yes| M[Protected Routes]
+    L -->|No| N[Public Routes]
+```
+
+### Key Components
+
+#### 1. **AuthProvider** (`/components/AuthProvider.tsx`)
+
+- **Purpose**: Handles authentication initialization at app startup
+- **Features**:
+  - Single initialization call (prevents duplicate API requests)
+  - Loading state management during initialization
+  - Global state coordination
+
+```typescript
+// Prevents multiple initializations
+const hasDispatched = useRef(false);
+
+useEffect(() => {
+  if (!initialized && !hasDispatched.current) {
+    hasDispatched.current = true;
+    dispatch(initializeAuth());
+  }
+}, [dispatch, initialized]);
+```
+
+#### 2. **Auth Slice** (`/store/slices/authSlice.ts`)
+
+- **Purpose**: Centralized authentication state management
+- **State Structure**:
+  ```typescript
+  interface AuthState {
+    user: User | null;
+    isAuthenticated: boolean;
+    initialized: boolean; // Has initialization been attempted?
+    initializing: boolean; // Is initialization in progress?
+    loading: boolean; // Is an auth operation in progress?
+    error: string | null;
+  }
+  ```
+
+#### 3. **RouteGuard** (`/components/routes/RouteGuard.tsx`)
+
+- **Purpose**: Protects routes based on authentication status
+- **Logic**:
+  - Waits for `initialized: true` before making routing decisions
+  - Redirects unauthenticated users to login
+  - Redirects authenticated users away from auth pages
+
+#### 4. **useAuth Hook** (`/hooks/useAuth.ts`)
+
+- **Purpose**: Provides authentication utilities to components
+- **Features**:
+  - Login/logout functions
+  - Manual session refresh
+  - Error handling with toast notifications
+
+### Authentication States
+
+| State               | `initialized` | `isAuthenticated` | `initializing` | UI Behavior            |
+| ------------------- | ------------- | ----------------- | -------------- | ---------------------- |
+| **App Starting**    | `false`       | `false`           | `false`        | Show loading spinner   |
+| **Checking Auth**   | `false`       | `false`           | `true`         | Show "Initializing..." |
+| **Authenticated**   | `true`        | `true`            | `false`        | Show protected app     |
+| **Unauthenticated** | `true`        | `false`           | `false`        | Show login page        |
 
 ---
 

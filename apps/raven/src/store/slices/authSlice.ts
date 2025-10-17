@@ -6,7 +6,8 @@ import { createSlice } from "@reduxjs/toolkit";
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  initialized?: boolean;
+  initialized: boolean;
+  initializing: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -15,6 +16,7 @@ const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   initialized: false,
+  initializing: false,
   loading: false,
   error: null
 };
@@ -84,6 +86,30 @@ export const getCurrentUser = createAppAsyncThunk<
   }
 });
 
+export const initializeAuth = createAppAsyncThunk<
+  void,
+  void,
+  { rejectValue: ApiError }
+>("auth/initializeAuth", async (_, { dispatch, getState }) => {
+  const state = getState() as { auth: AuthState };
+
+  // Don't initialize if already initialized
+  if (state.auth.initialized) {
+    return;
+  }
+
+  try {
+    await dispatch(getCurrentUser());
+
+    // The getCurrentUser thunk will handle setting the auth state
+    // We just need to ensure initialization is marked as complete
+    return;
+  } catch (error) {
+    // Even if it fails, we mark as initialized to prevent retries
+    return;
+  }
+});
+
 /***** SLICE *****/
 
 const authSlice = createSlice({
@@ -92,6 +118,7 @@ const authSlice = createSlice({
   reducers: {
     clearAuth: state => {
       state.initialized = false;
+      state.initializing = false;
       state.isAuthenticated = false;
       state.user = null;
       state.loading = false;
@@ -99,6 +126,10 @@ const authSlice = createSlice({
 
     clearError: state => {
       state.error = null;
+    },
+
+    setInitializing: (state, action) => {
+      state.initializing = action.payload;
     }
   },
   extraReducers: builder => {
@@ -171,8 +202,22 @@ const authSlice = createSlice({
         state.initialized = true;
         state.isAuthenticated = false;
       });
+
+    // Initialize Auth
+    builder
+      .addCase(initializeAuth.pending, state => {
+        state.initializing = true;
+      })
+      .addCase(initializeAuth.fulfilled, state => {
+        state.initializing = false;
+        state.initialized = true;
+      })
+      .addCase(initializeAuth.rejected, state => {
+        state.initializing = false;
+        state.initialized = true;
+      });
   }
 });
 
-export const { clearError, clearAuth } = authSlice.actions;
+export const { clearError, clearAuth, setInitializing } = authSlice.actions;
 export default authSlice.reducer;

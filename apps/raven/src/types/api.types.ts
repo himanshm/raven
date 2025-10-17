@@ -22,12 +22,7 @@ export interface ApiResponse<T = unknown> {
 
 export interface ApiError {
   message: string;
+  success: boolean;
   status?: number;
   data?: unknown;
-}
-
-export interface ApiResult<T> {
-  data: ApiResponse<T>;
-  status: number;
-  headers: Record<string, string>;
 }
