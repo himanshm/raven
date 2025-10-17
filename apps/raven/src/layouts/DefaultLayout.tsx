@@ -22,8 +22,8 @@ const DefaultLayout = () => {
         <div className="flex items-center justify-between mt-2">
           <AppHeader />
           <div className="flex items-center gap-4">
-            <ThemeToggle />
             {isAuthenticated && user && <UserAvatar />}
+            <ThemeToggle />
           </div>
         </div>
         <Separator className="my-3 w-full max-w-[90rem]" />

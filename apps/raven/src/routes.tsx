@@ -5,6 +5,7 @@ import RouteGuard from "./components/routes/RouteGuard";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Profile from "./pages/settings/Profile";
 
 const router = createBrowserRouter([
   {
@@ -14,7 +15,8 @@ const router = createBrowserRouter([
         element: <RouteGuard requiredAuth={true} redirectTo="/login" />,
         children: [
           { index: true, Component: Dashboard },
-          { path: "dashboard", Component: Dashboard }
+          { path: "dashboard", Component: Dashboard },
+          { path: "settings/profile", Component: Profile }
         ]
       },
       {
