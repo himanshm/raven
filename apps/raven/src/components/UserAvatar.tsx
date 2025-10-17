@@ -3,29 +3,52 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import type { LucideIcon } from "lucide-react";
-import { LogOut, Settings } from "lucide-react";
+import {
+  LockKeyhole,
+  LogOut,
+  MonitorCog,
+  Settings,
+  UserCog
+} from "lucide-react";
 import { useNavigate } from "react-router";
+import AvatarItem from "./AvatarItem";
 
-interface UserAvatarItem {
+export interface UserAvatarItem {
   label: string;
   icon: LucideIcon;
-  onClick: () => void;
+  onClick?: () => void;
+  submenuItems?: UserAvatarItem[];
 }
 
 const UserAvatar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  console.log("user", user);
+
   const userAvatarItems: UserAvatarItem[] = [
     {
       label: "Settings",
       icon: Settings,
-      onClick: () => navigate("/settings/profile")
+      submenuItems: [
+        {
+          label: "Profile",
+          icon: UserCog,
+          onClick: () => navigate("/profile")
+        },
+        {
+          label: "Preferences",
+          icon: MonitorCog,
+          onClick: () => navigate("/preferences")
+        },
+        {
+          label: "Change Password",
+          icon: LockKeyhole,
+          onClick: () => navigate("/update-password")
+        }
+      ]
     },
     {
       label: "Logout",
@@ -33,6 +56,7 @@ const UserAvatar = () => {
       onClick: () => logout()
     }
   ];
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -45,10 +69,7 @@ const UserAvatar = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {userAvatarItems.map(item => (
-          <DropdownMenuItem key={item.label} onClick={item.onClick}>
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </DropdownMenuItem>
+          <AvatarItem key={item.label} item={item} />
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
